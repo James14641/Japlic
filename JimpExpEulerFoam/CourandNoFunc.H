@@ -48,7 +48,7 @@ tmp<volScalarField> CourantNo
         )
     );
     volScalarField sumMagPhi = fvc::surfaceSum(mag(phi));
-    tCourantNo->ref() = 0.5*sumMagPhi.internalField()/mesh.V()*dt;// What is V? 
+    tCourantNo->ref() = 0.5*sumMagPhi.internalField()/mesh.V()*dt;// 
 
     return tCourantNo;
 }

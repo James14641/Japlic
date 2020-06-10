@@ -71,7 +71,7 @@ surfaceScalarField phiBig = 0*phi;
 
 // Split the flux into the large part and the smaller part
 surfaceScalarField phiLimit = 0.5*CoLimit*mesh.magSf()/mesh.deltaCoeffs()/dt;
-// is the double divide above legit?
+
 forAll(phi, faceI)
 {
     if (mag(phi[faceI]) > phiLimit[faceI])

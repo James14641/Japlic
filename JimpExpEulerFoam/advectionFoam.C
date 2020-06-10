@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
 {
     Foam::argList::addBoolOption("timeVaryingWind", "read the wind field (U/Uf/phi) at every timestep");
     Foam::argList::addBoolOption("FEBE","1st order explicit euler, or 1st order implicit euler where needed");
+    Foam::argList::addBoolOption("FEBEDC","Deffered correction");
+    Foam::argList::addBoolOption("FEBEHO","High space order implicit");
     Foam::argList::addBoolOption("SSP2BE","SSP2, or 1st order implicit euler where needed");
     Foam::argList::addBoolOption("SSP2CN","SSP2, or CrankNicholson where needed");
     Foam::argList::addBoolOption("SSP104BE","SSP104, or backward euler where needed");
@@ -117,6 +119,39 @@ int main(int argc, char *argv[])
                     fvm::ddt(T)
                 
                 + fvm::div(phiBig, T, "upwind")
+                + fvc::div(phiSmall, T, "explicit")
+                );
+                TEqn.solve();
+            }
+        }
+        if (args.options().found("FEBEHO"))
+        {
+            for(label corr = 0; corr < nCorr; corr++)
+            {
+                fvScalarMatrix TEqn
+                (
+                    fvm::ddt(T)
+                
+                + fvm::div(phiBig, T, "implicit")
+                
+                
+                + fvc::div(phiSmall, T, "explicit")
+                );
+                TEqn.solve();
+            }
+        }
+        if (args.options().found("FEBEDC"))
+        {
+            for(label corr = 0; corr < nCorr; corr++)// this scheme is very sensitive to the number of corrective passes. 
+            {
+                fvScalarMatrix TEqn
+                (
+                    fvm::ddt(T)
+                + fvm::div(phiBig, T, "upwind")
+                //   Correction term   //
+                - fvc::div(phiBig, T, "upwind")
+                + fvc::div(phiBig, T, "implicit")
+               
                 + fvc::div(phiSmall, T, "upwind")
                 );
                 TEqn.solve();
@@ -127,14 +162,14 @@ int main(int argc, char *argv[])
         {
             for(label corr = 0; corr < nCorr; corr++)
             {
-                KK = T + dt*fvc::div(phiSmall, T, "upwind");
+                KK = T + dt*fvc::div(phiSmall, T, "explicit");
             
                 fvScalarMatrix TEqn
                 (
                     fvm::ddt(T)
-                + offCentre*fvm::div(phiBig, T, "upwind")
-                + 0.5*fvc::div(phiSmall, T, "upwind")
-                + 0.5*fvc::div(phiSmall, KK, "upwind")
+                + fvm::div(phiBig, T, "implicit")
+                + 0.5*fvc::div(phiSmall, T, "explicit")
+                + 0.5*fvc::div(phiSmall, KK, "explicit")
                 );
                 TEqn.solve();
             }
@@ -143,15 +178,15 @@ int main(int argc, char *argv[])
         {
             for(label corr = 0; corr < nCorr; corr++)
             {
-                KK = T + dt*fvc::div(phiSmall, T, "upwind");// is the use of T here ok
+                KK = T + dt*fvc::div(phiSmall, T, "explicit");
             
                 fvScalarMatrix TEqn
                 (
                     fvm::ddt(T)
-                + 0.5*fvm::div(phiBig, T, "upwind")
-                + 0.5*fvc::div(phiBig, T, "upwind")
-                + 0.5*fvc::div(phiSmall, T, "upwind")
-                + 0.5*fvc::div(phiSmall, KK, "upwind")
+                + 0.5*fvm::div(phiBig, T, "implicit")
+                + 0.5*fvc::div(phiBig, T, "implicit")
+                + 0.5*fvc::div(phiSmall, T, "explicit")
+                + 0.5*fvc::div(phiSmall, KK, "explicit")
                 );
                 TEqn.solve();
             }
