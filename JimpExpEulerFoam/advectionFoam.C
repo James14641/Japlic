@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     Foam::argList::addBoolOption("FEBEHO","High space order implicit");
     Foam::argList::addBoolOption("SSP2BE","SSP2, or 1st order implicit euler where needed");
     Foam::argList::addBoolOption("SSP2CN","SSP2, or CrankNicholson where needed");
-    Foam::argList::addBoolOption("SSP104BE","SSP104, or backward euler where needed");
+    Foam::argList::addBoolOption("SSP104","SSP104");
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -54,7 +54,6 @@ int main(int argc, char *argv[])
     // Read the number of iterations each time-step
     const dictionary& itsDict = mesh.solutionDict().subDict("iterations");
     const int nCorr = itsDict.lookupOrDefault<label>("nCorr", label(2));
-    const scalar offCentre = readScalar(mesh.schemesDict().lookup("offCentre"));
     const scalar CoLimit = readScalar(mesh.schemesDict().lookup("CoLimit"));
 
     #include "createFields.H"
@@ -192,36 +191,25 @@ int main(int argc, char *argv[])
             }
         }
         
-        if (args.options().found("SSP104BE"))// not functional
+        if (args.options().found("SSP104"))
         {
-            for(label corr = 0; corr < nCorr; corr++)
-            {   
-                
-                cout << "Currently not functional" << endl;
-                KK = T;
-                for (int i = 1; i < 5; i++)
-                {
-                KK = KK + 1.0/6.0*dt*fvc::div(phiSmall, KK, "explicit");
-                };
-                KK2 = 3.0/5.0*T +2.0/5.0*KK + 1.0/15.0*dt*fvc::div(phiSmall, KK, "explicit");
-                for (int i = 1; i < 5; i++)
-                {
-                KK2 = KK2 +1.0/6.0*dt*fvc::div(phiSmall, KK, "explicit");
-                };
-                
-                fvScalarMatrix TEqn
-                (
-                  fvm::ddt(T)  
-                + fvm::div(phiBig, T, "upwind")
-                
-                + -24.0/25.0*T*1.0/dt
-                + 9.0/25.0*KK*1.0/dt
-                + 3.0/5.0*KK2*1.0/dt
-                + 3.0/50.0*fvc::div(phiSmall, KK, "explicit")
-                + 1.0/10.0*fvc::div(phiSmall, KK2, "explicit")
-                );
-                TEqn.solve();
-            }
+            for (int i = 0; i < 4; i++)
+            {
+                T -= 1./6.*dt*fvc::div(phi, T);
+            };
+            KK = 3./5.*T.oldTime()
+               + 2./5.*T
+               - 1./15.*dt*fvc::div(phi, T);
+            for (int i = 0; i < 4; i++)
+            {
+                KK -= 1./6.*dt*fvc::div(phi, KK);
+            };
+            
+            T = 1./25.*T.oldTime()
+              + 9./25.*T
+              + 3./5.*KK 
+              - 3./50.*dt*fvc::div(phi, T)
+              - 1./10.*dt*fvc::div(phi, KK);
         }
         
         Info << " T goes from " << min(T.internalField()).value() << " to "

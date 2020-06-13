@@ -1,0 +1,17 @@
+Notes of 11 June
+
+Do not put time directories or polyMesh files into git repositories. See the .gitignore file in one of the AtmosFOAM repositories to see how to avoid doing this.
+
+Put options into an input dictionary rather than using so many command line options.
+
+Your SSP2CN scheme looks strange. It doesn't look like a consistent discretisation of the linear advection scheme. Perhaps you should use implicitExplicitAdvectionFoam. If you could write down the scheme that you are trying to implement then I will help you to implement it. 
+
+All of the schemes in JimpExpEulerFoam apart from SSP104BE are implemented in implicitExplicitAdvectionFoam with different choices of offCentre, nCorr and CoLimit but with less code duplication. 
+
+KK and KK2 are initialised in createFields.H to be N0_READ. If you want them to be NO_READ then you will need to provide a default value instead of the mesh (see constructors for the GeometricField class). 
+
+It is important that code follows consistent style rules. See implicitExplicitAdvectionFoam for an example of what the indentation should look like.
+
+I don't know why SSP104BE worked in your python code. It could be something to do with it being 1D or using 1st order upwind spatial discretisation? You have not proved Harten's Lemma for this case.
+
+How are you getting on with the change in aspect ratio for the initial tracer?

@@ -13,9 +13,6 @@ volScalarField T
     mesh
 );
 T.oldTime();
-T.oldTime().oldTime();
-
-
 
 volVectorField U
 (
@@ -95,36 +92,6 @@ volScalarField CoImp
 CoImp.write();
 
 
-// I will store a memory field
-volScalarField KK
-(
-    IOobject
-    (
-        "KK",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    mesh
-    //-fvc::div(phiSmall,T,"upwind") // here it is hopefully this gets overwritten
-);
-
-volScalarField KK2
-(
-    IOobject
-    (
-        "KK2",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::NO_WRITE
-    ),
-    mesh
-    //-fvc::div(phiSmall,T,"upwind") // here it is hopefully this gets overwritten
-);
-
-
-volScalarField divPhiOld = fvc::div(phiSmall, T, "explicit")
-                         + fvc::div(phiBig, T, "implicit");
+// Intermediate values of T
+volScalarField KK("KK", T);
 
