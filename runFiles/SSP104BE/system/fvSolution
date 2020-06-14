@@ -20,4 +20,16 @@ iterations
     nCorr 0;
 }
 
+solvers
+{
+
+    T
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0;
+    }
+}
+
 // ************************************************************************* //

@@ -19,7 +19,7 @@ volVectorField U
     IOobject
     (
         "U",
-        runTime.timeName(),
+        runTime.constant(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::NO_WRITE
@@ -34,7 +34,7 @@ surfaceVectorField Uf
     IOobject
     (
         "Uf",
-        runTime.timeName(),
+        runTime.constant(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::NO_WRITE
@@ -47,7 +47,7 @@ surfaceScalarField phi
     IOobject
     (
         "phi",
-        runTime.timeName(),
+        runTime.constant(),
         mesh,
         IOobject::READ_IF_PRESENT,
         IOobject::NO_WRITE
@@ -58,7 +58,7 @@ surfaceScalarField phi
 // Courant numbers to write out
 volScalarField Co
 (
-    IOobject("Co", runTime.timeName(), mesh),
+    IOobject("Co", runTime.constant(), mesh),
     CourantNo(phi, dt)
 );
 Co.write();
@@ -90,7 +90,6 @@ volScalarField CoImp
     CourantNo(phiBig, dt)
 );
 CoImp.write();
-
 
 // Intermediate values of T
 volScalarField KK("KK", T);

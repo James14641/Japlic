@@ -33,19 +33,18 @@ Description
 #include "fvCFD.H"
 #include "OFstream.H"
 #include "velocityField.H"
-#include "CourandNoFunc.H"
+#include "CourantNoFunc.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
-    Foam::argList::addBoolOption("timeVaryingWind", "read the wind field (U/Uf/phi) at every timestep");
     Foam::argList::addBoolOption("FEBE","1st order explicit euler, or 1st order implicit euler where needed");
     Foam::argList::addBoolOption("FEBEDC","Deffered correction");
     Foam::argList::addBoolOption("FEBEHO","High space order implicit");
     Foam::argList::addBoolOption("SSP2BE","SSP2, or 1st order implicit euler where needed");
     Foam::argList::addBoolOption("SSP2CN","SSP2, or CrankNicholson where needed");
-    Foam::argList::addBoolOption("SSP104","SSP104");
+    Foam::argList::addBoolOption("SSP104BE","SSP104BE");
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -58,56 +57,13 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
 
-    Info<< "\nCalculating advection\n" << endl;
+    Info<< "Maximum total Courant number: " << max(Co).value()
+        << "\nMaximum explicit Courant number: " << max(CoExp).value()
+        << "\nMaximum implicit Courant number: " << max(CoImp).value() << endl;
 
-    IOdictionary dict
-    (
-        IOobject
-        (
-            "advectionDict",
-            mesh.time().system(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        )
-    );
-
-    bool timeVaryingWind = dict.lookupOrDefault<bool>("timeVaryingWind", false);
-    const dictionary& velocityDict = dict.subOrEmptyDict("velocity");
-    autoPtr<velocityField> v;
-    if (velocityDict.size() > 0)
-    {
-        v = velocityField::New(dict.subOrEmptyDict("velocity"));
-    }
-    
     while (runTime.loop())
     {
         Info<< "\nTime = " << runTime.timeName() << endl;
-        if (timeVaryingWind)
-        {
-            v->applyTo(phi);
-
-            forAll(phi, faceI)
-            {
-                if (mag(phi[faceI]) > phiLimit[faceI])
-                {
-                    phiSmall[faceI] = 0;
-                    phiBig[faceI] = phi[faceI];
-                }
-                else
-                {
-                    phiSmall[faceI] = phi[faceI];
-                    phiBig[faceI] = 0;
-                }
-            }
-
-            U = fvc::reconstruct(phi);
-            Uf = linearInterpolate(U);
-            Uf += (phi - (Uf & mesh.Sf()))*mesh.Sf()/sqr(mesh.magSf());
-        }
-
-        #include "CourantNo.H"
-        
         
         if (args.options().found("FEBE"))
         {
@@ -123,23 +79,20 @@ int main(int argc, char *argv[])
                 TEqn.solve();
             }
         }
-        if (args.options().found("FEBEHO"))
+        else if (args.options().found("FEBEHO"))
         {
             for(label corr = 0; corr < nCorr; corr++)
             {
                 fvScalarMatrix TEqn
                 (
                     fvm::ddt(T)
-                
-                + fvm::div(phiBig, T, "implicit")
-                
-                
-                + fvc::div(phiSmall, T, "explicit")
+                  + fvm::div(phiBig, T, "implicit")
+                  + fvc::div(phiSmall, T, "explicit")
                 );
                 TEqn.solve();
             }
         }
-        if (args.options().found("FEBEDC"))
+        else if (args.options().found("FEBEDC"))
         {
             for(label corr = 0; corr < nCorr; corr++)// this scheme is very sensitive to the number of corrective passes. 
             {
@@ -157,7 +110,7 @@ int main(int argc, char *argv[])
             }
         }
         
-        if (args.options().found("SSP2BE"))
+        else if (args.options().found("SSP2BE"))
         {
             for(label corr = 0; corr < nCorr; corr++)
             {
@@ -173,7 +126,7 @@ int main(int argc, char *argv[])
                 TEqn.solve();
             }
         }
-        if (args.options().found("SSP2CN"))
+        else if (args.options().found("SSP2CN"))
         {
             for(label corr = 0; corr < nCorr; corr++)
             {
@@ -191,31 +144,46 @@ int main(int argc, char *argv[])
             }
         }
         
-        if (args.options().found("SSP104"))
+        else if (args.options().found("SSP104BE"))
         {
+            // Explicit SSP104 update
             for (int i = 0; i < 4; i++)
             {
-                T -= 1./6.*dt*fvc::div(phi, T);
+                T -= 1./6.*dt*fvc::div(phiSmall, T, "explicit");
             };
             KK = 3./5.*T.oldTime()
                + 2./5.*T
-               - 1./15.*dt*fvc::div(phi, T);
+               - 1./15.*dt*fvc::div(phiSmall, T, "explicit");
             for (int i = 0; i < 4; i++)
             {
-                KK -= 1./6.*dt*fvc::div(phi, KK);
+                KK -= 1./6.*dt*fvc::div(phiSmall, KK, "explicit");
             };
             
             T = 1./25.*T.oldTime()
               + 9./25.*T
               + 3./5.*KK 
-              - 3./50.*dt*fvc::div(phi, T)
-              - 1./10.*dt*fvc::div(phi, KK);
+              - 3./50.*dt*fvc::div(phiSmall, T, "explicit")
+              - 1./10.*dt*fvc::div(phiSmall, KK, "explicit");
+              
+            // Implicit BE part (has to be used with 1st order upwind)
+            fvScalarMatrix TEqn
+            (
+                fvm::ddt(T)
+              + fvm::div(phiBig, T, "upwind")
+              - (T - T.oldTime())/dt
+            );
+            TEqn.solve();
+        }
+        else
+        {
+            FatalErrorIn("JimpExpEulerFoam")
+                 << " no valid advection scheme given as an argument"
+                 << exit(FatalError);
         }
         
         Info << " T goes from " << min(T.internalField()).value() << " to "
              << max(T.internalField()).value() << endl;
         runTime.write();
-        
     }
 
     Info << "End\n" << endl;
