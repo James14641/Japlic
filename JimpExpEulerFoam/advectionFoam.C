@@ -94,17 +94,17 @@ int main(int argc, char *argv[])
         }
         else if (args.options().found("FEBEDC"))
         {
-            for(label corr = 0; corr < nCorr; corr++)// this scheme is very sensitive to the number of corrective passes. 
+            for(label corr = 0; corr < nCorr; corr++)
             {
                 fvScalarMatrix TEqn
                 (
                     fvm::ddt(T)
                 + fvm::div(phiBig, T, "upwind")
-                //   Correction term   //
+                //      Correction term      //
                 - fvc::div(phiBig, T, "upwind")
                 + fvc::div(phiBig, T, "implicit")
                
-                + fvc::div(phiSmall, T, "upwind")
+                + fvc::div(phiSmall, T, "explicit")
                 );
                 TEqn.solve();
             }
