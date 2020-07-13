@@ -17,7 +17,7 @@ FoamFile
 
 iterations
 {
-    nCorr 2;
+    nCorr 5;
 }
 
 solvers

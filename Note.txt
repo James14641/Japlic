@@ -1,0 +1,7 @@
+test case:
+/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/FEBE/FEBEDC_convergence/FEBEDC_32
+
+This should be the test for Forwards Euler, blended with backwards Euler.
+Where spatially we use the deffered correction, for van leer, with 5 iterations
+
+However the defered correction doesnt seem to converge. 
