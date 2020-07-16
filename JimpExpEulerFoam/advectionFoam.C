@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     Foam::argList::addBoolOption("SSP2BE","SSP2, or 1st order implicit euler where needed");
     Foam::argList::addBoolOption("SSP2CN","SSP2, or CrankNicholson where needed");
     Foam::argList::addBoolOption("SSP104BE","SSP104BE");
+    Foam::argList::addBoolOption("SSP104BEDC","SSP104BEDC");
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -170,6 +171,40 @@ int main(int argc, char *argv[])
             (
                 fvm::ddt(T)
               + fvm::div(phiBig, T, "upwind")
+              - (T - T.oldTime())/dt
+            );
+            TEqn.solve();
+        }
+        
+        
+        else if (args.options().found("SSP104BEDC"))
+        {
+            // Explicit SSP104 update
+            for (int i = 0; i < 4; i++)
+            {
+                T -= 1./6.*dt*fvc::div(phiSmall, T, "explicit");
+            };
+            KK = 3./5.*T.oldTime()
+               + 2./5.*T
+               - 1./15.*dt*fvc::div(phiSmall, T, "explicit");
+            for (int i = 0; i < 4; i++)
+            {
+                KK -= 1./6.*dt*fvc::div(phiSmall, KK, "explicit");
+            };
+            
+            T = 1./25.*T.oldTime()
+              + 9./25.*T
+              + 3./5.*KK 
+              - 3./50.*dt*fvc::div(phiSmall, T, "explicit")
+              - 1./10.*dt*fvc::div(phiSmall, KK, "explicit");
+              
+            // Lets try doing the defered correction. 
+            fvScalarMatrix TEqn
+            (
+                fvm::ddt(T)
+              + fvm::div(phiBig, T, "upwind")
+              - fvc::div(phiBig, T, "upwind")
+              + fvc::div(phiBig, T, "implicit")
               - (T - T.oldTime())/dt
             );
             TEqn.solve();
