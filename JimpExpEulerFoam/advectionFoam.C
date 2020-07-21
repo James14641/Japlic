@@ -43,9 +43,11 @@ int main(int argc, char *argv[])
     Foam::argList::addBoolOption("FEBEDC","Deffered correction");
     Foam::argList::addBoolOption("FEBEHO","High space order implicit");
     Foam::argList::addBoolOption("SSP2BE","SSP2, or 1st order implicit euler where needed");
+    Foam::argList::addBoolOption("CNDC","CNDCjt");
     Foam::argList::addBoolOption("SSP2CN","SSP2, or CrankNicholson where needed");
     Foam::argList::addBoolOption("SSP104BE","SSP104BE");
     Foam::argList::addBoolOption("SSP104BEDC","SSP104BEDC");
+    
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
@@ -140,6 +142,26 @@ int main(int argc, char *argv[])
                 + 0.5*fvc::div(phiBig, T, "implicit")
                 + 0.5*fvc::div(phiSmall, T, "explicit")
                 + 0.5*fvc::div(phiSmall, KK, "explicit")
+                );
+                TEqn.solve();
+            }
+        }
+        else if (args.options().found("CNDC"))
+        {
+            for(label corr = 0; corr < nCorr; corr++)
+            {
+                fvScalarMatrix TEqn
+                (
+                    fvm::ddt(T)
+                + 0.5*fvm::div(phiBig, T, "upwind")
+                - 0.5*fvc::div(phiBig, T, "upwind")
+                + 0.5*fvc::div(phiBig, T, "implicit")
+                + 0.5*fvc::div(phiBig, T, "implicit")
+
+                + 0.5*fvm::div(phiSmall, T, "upwind")
+                - 0.5*fvc::div(phiSmall, T, "upwind")
+                + 0.5*fvc::div(phiSmall, T, "implicit")
+                + 0.5*fvc::div(phiSmall, T, "implicit")
                 );
                 TEqn.solve();
             }

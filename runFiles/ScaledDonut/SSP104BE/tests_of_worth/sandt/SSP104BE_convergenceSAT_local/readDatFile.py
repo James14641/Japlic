@@ -56,8 +56,8 @@ Table.insert(6,"Tmax",Tmax);
 Table.insert(7,"Tsum",Tsum);
 print(Table)
 print(Table.to_latex(index=False))
-Table.to_latex('SSP104BE_SaT.tex',index=False)
-Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_SaT.tex',index=False)
+Table.to_latex('SSP104BE_SaT_local.tex',index=False)
+Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_SaT_local.tex',index=False)
 #### Plotting the errors and their convergence 
 
 #### I believe that the issue here is the test being carried out
@@ -95,6 +95,6 @@ plt.suptitle("SSP104BE_SAT")
 
 
 plt.savefig('SSP104BE_convergence_SAT.png')
-plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_convergence_SAT.png')
+plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_convergence_SAT_local.png')
 
 

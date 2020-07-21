@@ -56,8 +56,8 @@ Table.insert(6,"Tmax",Tmax);
 Table.insert(7,"Tsum",Tsum);
 print(Table)
 print(Table.to_latex(index=False))
-Table.to_latex('SSP104BE_SaT.tex',index=False)
-Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_SaT.tex',index=False)
+Table.to_latex('SSP104BE_3it.tex',index=False)
+Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_3it.tex',index=False)
 #### Plotting the errors and their convergence 
 
 #### I believe that the issue here is the test being carried out
@@ -91,10 +91,10 @@ plt.loglog(nx,(nx*1.0)**(-1),'k',label = r'$O(-1)$');
 plt.loglog(nx,(nx*1.0)**(-2),'k',label = r'$O(-2)$');
 plt.title(r'$l^1, l^2,l^{\infty}$ log error plot');plt.xlabel(r'$\log(nx)$');
 plt.ylabel(r'$\log(err)$');plt.legend();
-plt.suptitle("SSP104BE_SAT")
+plt.suptitle("SSP104BEDC3_SAT")
 
 
-plt.savefig('SSP104BE_convergence_SAT.png')
-plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_convergence_SAT.png')
+plt.savefig('SSP104BEDC_convergence_SAT.png')
+plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BEDC3_convergence_SAT.png')
 
 

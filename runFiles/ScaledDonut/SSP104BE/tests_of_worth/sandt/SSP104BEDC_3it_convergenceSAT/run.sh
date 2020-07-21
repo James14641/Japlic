@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
-cd ./32
+cd ./50
 ./run.sh
-cd ../64
+cd ../100
 ./run.sh
-cd ../128
+cd ../200
 ./run.sh
-cd ../256
+cd ../400
 ./run.sh
-cd ../512
+cd ../800
 ./run.sh
 cd ..
 python3 readDatFile.py

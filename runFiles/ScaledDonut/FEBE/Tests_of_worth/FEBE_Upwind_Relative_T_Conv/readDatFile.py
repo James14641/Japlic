@@ -54,7 +54,8 @@ Table.insert(0,"nt",nt);Table.insert(4,"Tmin",Tmin);Table.insert(5,"Tmax",Tmax);
 Table.insert(6,"Tsum",Tsum);
 print(Table)
 print(Table.to_latex(index=False))
-
+Table.to_latex('FEBE_relative_temporal.tex',index=False)
+Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/FEBE_relative_temporal.tex',index=False)
 #### Plotting the errors and their convergence 
 
 #### I believe that the issue here is the test being carried out
@@ -91,6 +92,6 @@ plt.suptitle("FEBE_relative_time")
 
 
 plt.savefig('FEBE_rel_time_convergence.png')
-
+plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/FEBE_rel_time_convergence.png')
 
 

@@ -45,19 +45,19 @@ Tl1 = fullDataFrameTdiff['mag'].to_numpy()
 Tl2 = fullDataFrameTdiff['RMS'].to_numpy()
 Tlinf = fullDataFrameTdiff['inf'].to_numpy()
 nx = 2**fullDataFrameT.index.values*50
-nt = 2**fullDataFrameT.index.values*40
+nt = 2**fullDataFrameT.index.values*100
 
 
 Table = fullDataFrameTdiff
 Table.drop(columns = ['#time','variance','sum','variance','min','max'],inplace = True)
 Table.rename(columns = {"mag":"l1", "RMS":"l2","inf":"linf"},inplace = True)
-Table.insert(0,"nx",nx),Table.insert(0,"nt",nt);Table.insert(5,"Tmin",Tmin);
-Table.insert(6,"Tmax",Tmax);
-Table.insert(7,"Tsum",Tsum);
+Table.insert(0,"nx",nx),Table.insert(0,"nt",nt);Table.insert(4,"Tmin",Tmin);
+Table.insert(5,"Tmax",Tmax);
+Table.insert(6,"Tsum",Tsum);
 print(Table)
 print(Table.to_latex(index=False))
-Table.to_latex('SSP104BE_SaT.tex',index=False)
-Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_SaT.tex',index=False)
+Table.to_latex('SSP104_cubic_convergence_SAT.tex',index=False)
+Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104_cubic_convergence_SAT.tex',index=False)
 #### Plotting the errors and their convergence 
 
 #### I believe that the issue here is the test being carried out
@@ -91,10 +91,10 @@ plt.loglog(nx,(nx*1.0)**(-1),'k',label = r'$O(-1)$');
 plt.loglog(nx,(nx*1.0)**(-2),'k',label = r'$O(-2)$');
 plt.title(r'$l^1, l^2,l^{\infty}$ log error plot');plt.xlabel(r'$\log(nx)$');
 plt.ylabel(r'$\log(err)$');plt.legend();
-plt.suptitle("SSP104BE_SAT")
+plt.suptitle("SSP104_cubic_SAT")
 
 
-plt.savefig('SSP104BE_convergence_SAT.png')
-plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104BE_convergence_SAT.png')
+plt.savefig('SSP104_convergence_SAT.png')
+plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/SSP104_cubic_convergence_SAT.png')
 
 

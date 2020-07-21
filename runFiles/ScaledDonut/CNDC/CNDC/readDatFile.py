@@ -3,19 +3,19 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-pathArrayT = [Path(r'./32/globalSumT.dat'),
-             Path(r'./64/globalSumT.dat'),
-             Path(r'./128/globalSumT.dat'),
-             Path(r'./256/globalSumT.dat'),
-             Path(r'./512/globalSumT.dat')]
+pathArrayT = [Path(r'./50/globalSumT.dat'),
+             Path(r'./100/globalSumT.dat'),
+             Path(r'./200/globalSumT.dat'),
+             Path(r'./400/globalSumT.dat'),
+             Path(r'./800/globalSumT.dat')]
 
-pathArrayTdiff = [Path(r'./32/globalSumTdiff.dat'),
-             Path(r'./64/globalSumTdiff.dat'),
-             Path(r'./128/globalSumTdiff.dat'),
-             Path(r'./256/globalSumTdiff.dat'),
-             Path(r'./512/globalSumTdiff.dat')]
+pathArrayTdiff = [Path(r'./50/globalSumTdiff.dat'),
+             Path(r'./100/globalSumTdiff.dat'),
+             Path(r'./200/globalSumTdiff.dat'),
+             Path(r'./400/globalSumTdiff.dat'),
+             Path(r'./800/globalSumTdiff.dat')]
 
-d1 = Path(r'./32/globalSumT.dat')
+d1 = Path(r'./50/globalSumT.dat')
 r1 = open(d1)
 print(r1.read())
 '''
@@ -44,7 +44,7 @@ Tvar = fullDataFrameT['variance'].to_numpy()
 Tl1 = fullDataFrameTdiff['mag'].to_numpy()
 Tl2 = fullDataFrameTdiff['RMS'].to_numpy()
 Tlinf = fullDataFrameTdiff['inf'].to_numpy()
-nx = 2**fullDataFrameT.index.values*32
+nx = 2**fullDataFrameT.index.values*50
 nt = 2**fullDataFrameT.index.values*100
 
 
@@ -56,7 +56,8 @@ Table.insert(5,"Tmax",Tmax);
 Table.insert(6,"Tsum",Tsum);
 print(Table)
 print(Table.to_latex(index=False))
-
+Table.to_latex('CNDC_convergence_SAT.tex',index=False)
+Table.to_latex('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/CNDC_convergence_SAT.tex',index=False)
 #### Plotting the errors and their convergence 
 
 #### I believe that the issue here is the test being carried out
@@ -85,14 +86,15 @@ plt.plot();
 plt.loglog(nx,Tl1,'-o',label = "l1");
 plt.loglog(nx,Tl2,'-o',label = "l2");
 plt.loglog(nx,Tlinf,'-o',label = "linfty");
-plt.loglog(nx,nx**(-1/2),'k',label = r'$O(nx^{-0.5})$');
-plt.loglog(nx,(nx*1.0)**(-1),'k',label = r'$O(nx^{-1})$');
+plt.loglog(nx,nx**(-1/2),'k',label = r'$O(-0.5)$');
+plt.loglog(nx,(nx*1.0)**(-1),'k',label = r'$O(-1)$');
+plt.loglog(nx,(nx*1.0)**(-2),'k',label = r'$O(-2)$');
 plt.title(r'$l^1, l^2,l^{\infty}$ log error plot');plt.xlabel(r'$\log(nx)$');
 plt.ylabel(r'$\log(err)$');plt.legend();
-plt.suptitle("FEBEDC_SAT")
+plt.suptitle("CNDC_convergence_SAT")
 
 
-plt.savefig('FEBEDC_convergence_SAT.png')
-
+plt.savefig('CNDC_convergence_SAT.png')
+plt.savefig('/home/james/OpenFOAM/james-7/Japplications/runFiles/ScaledDonut/Results_container/CNDC_convergence_SAT.png')
 
 
