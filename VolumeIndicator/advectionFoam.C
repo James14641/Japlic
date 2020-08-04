@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            FatalErrorIn("JimpExpEulerFoam")
+            FatalErrorIn("VolumeIndicatorMethod")
                  << " no valid advection scheme given as an argument"
                  << exit(FatalError);
         }

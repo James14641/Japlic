@@ -63,8 +63,8 @@ volScalarField Co
 );
 Co.write();
 // Make a indicator function based on the CFL number of a cell
-volScalarField INDI = 0*T;
-volScalarField INDE = 0*T;
+volScalarField INDI("INDI", T);
+volScalarField INDE("INDE", T);
 forAll(mesh.C(), celli)
 {
     if (mag(Co[celli]) > CoLimit)
@@ -78,6 +78,7 @@ forAll(mesh.C(), celli)
         INDE[celli] = 1;
     }
 };
+INDE.write();
 // Intermediate values of T
 volScalarField KK("KK", T);
 
